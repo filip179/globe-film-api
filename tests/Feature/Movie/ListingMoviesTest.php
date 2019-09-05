@@ -2,15 +2,15 @@
 
 namespace App\Tests\Feature\Movie;
 
+use App\Tests\Components\AppTestCase;
 use App\Tests\Components\HttpClientTrait;
 
-class ListingMoviesTest extends AppTestCaseTestCase
+class ListingMoviesTest extends AppTestCase
 {
-    use HttpClientTrait;
-
     /** @test */
     function anybody_can_list_movies()
     {
+$result = $this->http->get('/movie');
 
     }
 
