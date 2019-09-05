@@ -2,29 +2,34 @@
 
 namespace App\Tests\Components;
 
-use Doctrine\ORM\EntityManager;
-use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AppTestCase extends TestCase
+class AppTestCase extends KernelTestCase
 {
     private $manager;
 
-    public function __construct(EntityManager $manager)
+    protected function setUp(): void
     {
-        $this->manager = $manager;
+        $kernel = self::bootKernel();
+
+        $this->manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
     }
 
-
-    protected function tearDown()
+    protected function tearDown(): void
     {
-        $this->manager->getConnection()->getConfiguration()->setSQLLogger(null);
+        parent::tearDown();
 
+        $this->manager->getConnection()->getConfiguration()->setSQLLogger(null);
         $this->manager->getConnection()->prepare("SET FOREIGN_KEY_CHECKS = 0;")->execute();
+
         $tables = $this->manager->getConnection()->getSchemaManager()->listTableNames();
         foreach ($tables as $tableName) {
             $sql = 'DELETE FROM `' . $tableName . '` WHERE 1=1';
             $this->manager->getConnection()->prepare($sql)->execute();
         }
+
         $this->manager->getConnection()->prepare('SET FOREIGN_KEY_CHECKS = 1;')->execute();
     }
+
+
 }
