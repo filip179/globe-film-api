@@ -2,6 +2,7 @@
 
 <phpunit bootstrap="vendor/autoload.php"
          colors="true"
+         force="true"
          processIsolation="false"
          stopOnFailure="false">
 
@@ -15,6 +16,8 @@
         <env name="APP_ENV" value="test"/>
         <env name="KERNEL_CLASS" value="App\Kernel"/>
         <env name="DATABASE_URL" value="mysql://root:rootsecret@127.0.0.1:3308/test-globe-movie"/>
+        <env name="APP_HOST" value="http://localhost:1234"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
     </php>
 
 </phpunit>

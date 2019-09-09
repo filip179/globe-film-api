@@ -37,7 +37,7 @@ class AppTestCase extends KernelTestCase
         parent::tearDown();
 
         $this->manager->getConnection()->getConfiguration()->setSQLLogger(null);
-        $this->manager->getConnection()->prepare("SET FOREIGN_KEY_CHECKS = 0;")->execute();
+        $this->manager->getConnection()->prepare('SET FOREIGN_KEY_CHECKS = 0;')->execute();
 
         $tables = $this->manager->getConnection()->getSchemaManager()->listTableNames();
         foreach ($tables as $tableName) {
