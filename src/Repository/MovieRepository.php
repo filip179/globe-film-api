@@ -10,7 +10,6 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 
 class MovieRepository extends ServiceEntityRepository
 {
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Movie::class);
@@ -26,9 +25,8 @@ class MovieRepository extends ServiceEntityRepository
             $fetcher->get('page') ?? 1
         );
 
-        if ($filters['search'] !== null) {
-            $this->search($query, $filters['search']);
-        }
+        $this->search($query, $filters);
+        $this->filter($query, $filters);
 
         return $query->getQuery()->getResult();
     }
@@ -40,18 +38,40 @@ class MovieRepository extends ServiceEntityRepository
             ->setMaxResults($limit);
     }
 
-    private function search(QueryBuilder $query, string $searchExpr = null)
+    private function search(QueryBuilder $query, array $filters)
     {
-        if ($searchExpr !== null) {
-            $query
-                ->where($query->expr()->like('t.title', ':search1'))
-                ->orWhere($query->expr()->like('t.description', ':search2'))
-                ->orWhere($query->expr()->like('t.director', ':search3'))
-                ->setParameters([
-                    'search1' => '%' . $searchExpr . '%',
-                    'search2' => '%' . $searchExpr . '%',
-                    'search3' => '%' . $searchExpr . '%'
-                ]);
+        if ($filters['search'] === null) {
+            return;
+        }
+
+        $searchExpr = $filters['search'];
+        $query
+            ->where($query->expr()->like('t.title', ':search1'))
+            ->orWhere($query->expr()->like('t.description', ':search2'))
+            ->orWhere($query->expr()->like('t.director', ':search3'))
+            ->setParameters([
+                'search1' => '%' . $searchExpr . '%',
+                'search2' => '%' . $searchExpr . '%',
+                'search3' => '%' . $searchExpr . '%'
+            ]);
+    }
+
+    private function filter(QueryBuilder $query, array $filters)
+    {
+        unset($filters['search']);
+
+        foreach ($filters as $field => $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            if ($field === 'rate'){
+                $query->andWhere($query->expr()->gte('t.rate', $value));
+                continue;
+            }
+
+            $query->andWhere($query->expr()->like('t.' . $field, ':' . $field));
+            $query->setParameter(':'.$field, $value);
         }
     }
 
@@ -60,9 +80,8 @@ class MovieRepository extends ServiceEntityRepository
         $query = $this->createQueryBuilder('t')
             ->select('COUNT(t.id)');
 
-        if ($filters['search'] !== null) {
-            $this->search($query, $filters['search']);
-        }
+        $this->search($query, $filters);
+        $this->filter($query, $filters);
 
         return (int)$query->getQuery()->getSingleScalarResult();
     }

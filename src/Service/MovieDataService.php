@@ -22,7 +22,8 @@ class MovieDataService
         $filters = [
             'search' => $request->get('search'),
             'title' => $request->get('title'),
-            'director' => $request->get('director')
+            'director' => $request->get('director'),
+            'rate' => $request->get('rate'),
         ];
 
         $result = [
