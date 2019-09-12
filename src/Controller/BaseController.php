@@ -2,21 +2,28 @@
 
 namespace App\Controller;
 
+use App\Controller\Components\ValidatorContainer;
 use App\Exception\BadRequestHttpException;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class BaseController extends AbstractFOSRestController
+abstract class BaseController extends AbstractFOSRestController implements ValidatorContainer
 {
     private $validator;
 
-    public function __construct(
-        ValidatorInterface $validator
-    )
+    public function setValidator(ValidatorInterface $validator)
     {
         $this->validator = $validator;
+    }
+
+    public function validate($instance, string $group): void
+    {
+        $violations = $this->validator->validate($instance, null, $group);
+        if ($violations->count() > 0) {
+            throw new BadRequestHttpException($violations);
+        }
     }
 
     protected function createObjectView(
@@ -97,13 +104,5 @@ abstract class BaseController extends AbstractFOSRestController
     private function getSerializer(): SerializerInterface
     {
         return $this->get('serializer');
-    }
-
-    protected function validate($instance, string $group): void
-    {
-        $violations = $this->validator->validate($instance, null, $group);
-        if ($violations->count() > 0) {
-            throw new BadRequestHttpException($violations);
-        }
     }
 }
