@@ -2,51 +2,107 @@
 
 namespace App\Tests\Components;
 
+use App\Tests\Fixture\AppFixture;
+use ArrayAccess;
 use GuzzleHttp\Client;
+use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
+use http\Exception\BadConversionException;
+use PHPUnit\Framework\Constraint\ArraySubset;
+use PHPUnit\Util\InvalidArgumentHelper;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AppTestCase extends KernelTestCase
+abstract class AppTestCase extends KernelTestCase
 {
-    protected $manager;
+    use RefreshDatabaseTrait;
+
     /** @var Client */
     protected $http;
 
-    protected function get(string $uri)
+    protected $response;
+
+    public function assertJsonResponse(array $expected)
+    {
+        $this->assertArrayContains(
+            $expected, $this->decodeResponseJson(), true
+        );
+
+        return $this;
+    }
+
+    public function assertArrayContains(array $subset, array $array, bool $checkForObjectIdentity = false, string $message = '')
+    {
+        if (!(is_array($subset) || $subset instanceof ArrayAccess)) {
+            throw InvalidArgumentHelper::factory(
+                1,
+                'array or ArrayAccess'
+            );
+        }
+
+        if (!(is_array($array) || $array instanceof ArrayAccess)) {
+            throw InvalidArgumentHelper::factory(
+                2,
+                'array or ArrayAccess'
+            );
+        }
+
+        $constraint = new ArraySubset($subset, $checkForObjectIdentity);
+
+        static::assertThat($array, $constraint, $message);
+    }
+
+    private function decodeResponseJson($key = null)
+    {
+        $decodedResponse = json_decode($this->response->getBody()->getContents(), true);
+        if ($decodedResponse === null || $decodedResponse === false) {
+            throw new BadConversionException('Response is not a valid JSON.');
+        }
+
+        return $decodedResponse[$key] ?? $decodedResponse;
+    }
+
+    public function loadFixture($fixtureName)
+    {
+        $container = self::bootKernel()->getContainer();
+
+        /** @var AppFixture $fixture */
+        if (!in_array(AppFixture::class, class_parents($fixtureName))) {
+            throw new \BadFunctionCallException();
+        }
+
+        $manager = $container->get('doctrine.orm.entity_manager');
+
+        $manager->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $fixture = new $fixtureName($manager);
+        $fixture->load();
+    }
+
+    protected function get(string $uri, array $parameters = [])
     {
         $baseUrl = getenv('APP_HOST') ?? 'http://localhost';
 
-        return $this->http->request('GET', $baseUrl . $uri, ['headers' => [
-            'Accept' => 'application/json',
-            'Content-type' => 'application/json'
-        ]]);
+        $options = [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-type' => 'application/json'
+            ],
+        ];
+
+        if (!empty($parameters)) {
+            $options['query'] = $parameters;
+        }
+
+        $this->response = $this->http->request('GET', $baseUrl . $uri, $options);
+
+        return $this->response;
     }
 
     protected function setUp(): void
     {
-        $kernel = self::bootKernel();
-
-        $this->manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
+        parent::setUp();
 
         $this->http = new Client([
             'exceptions' => false,
         ]);
     }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->manager->getConnection()->getConfiguration()->setSQLLogger(null);
-        $this->manager->getConnection()->prepare('SET FOREIGN_KEY_CHECKS = 0;')->execute();
-
-        $tables = $this->manager->getConnection()->getSchemaManager()->listTableNames();
-        foreach ($tables as $tableName) {
-            $sql = 'DELETE FROM `' . $tableName . '` WHERE 1=1';
-            $this->manager->getConnection()->prepare($sql)->execute();
-        }
-
-        $this->manager->getConnection()->prepare('SET FOREIGN_KEY_CHECKS = 1;')->execute();
-    }
-
-
 }
