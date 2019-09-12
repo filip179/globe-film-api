@@ -2,7 +2,6 @@
 
 <phpunit bootstrap="vendor/autoload.php"
          colors="true"
-         force="true"
          processIsolation="false"
          stopOnFailure="false">
 
@@ -18,6 +17,8 @@
         <env name="DATABASE_URL" value="mysql://root:rootsecret@127.0.0.1:3308/test-globe-movie"/>
         <env name="APP_HOST" value="http://localhost:1234"/>
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+        <env name="APP_SECRET" value="7f9db04a1c5c021e7e249e25d1bbd8c8"/>
+        <server name="SHELL_VERBOSITY" value="-1" />
     </php>
 
 </phpunit>
