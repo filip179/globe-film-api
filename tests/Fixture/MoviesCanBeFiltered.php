@@ -18,7 +18,7 @@ class MoviesCanBeFiltered extends AppFixture
         $movie2->setTitle('Title2');
         $movie2->setDirector('Director2');
         $movie2->setDescription('Description2');
-        $movie2->setRate(1.0);
+        $movie2->setRate(2.0);
 
         $this->manager->persist($movie1);
         $this->manager->persist($movie2);

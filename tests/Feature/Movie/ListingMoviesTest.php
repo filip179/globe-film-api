@@ -34,7 +34,7 @@ class ListingMoviesTest extends AppTestCase
                 'title' => 'Title1',
                 'director' => 'Director1',
                 'rate' => 1,
-                'id'=> 1,
+                'id' => 1,
             ]
         ]]);
     }
@@ -51,24 +51,24 @@ class ListingMoviesTest extends AppTestCase
                 'title' => 'Title2',
                 'director' => 'Director2',
                 'rate' => 2,
-                'id'=> 2,
+                'id' => 2,
             ]
         ]]);
     }
 
     /** @test */
-    function movies_can_be_filtered_by_rating()
+    function movies_can_be_filtered_by_rate()
     {
         $this->loadFixture(MoviesCanBeFiltered::class);
 
-        $result = $this->get('/api/v1/movie', ['rating' => '2.0']);
+        $result = $this->get('/api/v1/movie', ['rate' => '2.0']);
         $this->assertEquals($result->getStatusCode(), Response::HTTP_OK);
         $this->assertJsonResponse(['data' => [
             [
                 'title' => 'Title2',
                 'director' => 'Director2',
                 'rate' => 2,
-                'id'=> 2,
+                'id' => 2,
             ]
         ]]);
     }
@@ -85,7 +85,7 @@ class ListingMoviesTest extends AppTestCase
                 'title' => 'Title1',
                 'director' => 'Director1',
                 'rate' => 1,
-                'id'=> 1,
+                'id' => 1,
             ]
         ]]);
     }
@@ -93,12 +93,12 @@ class ListingMoviesTest extends AppTestCase
     /** @test */
     function empty_array_is_returned_when_no_movies()
     {
-        $result = $this->get('/api/v1/movie');
+        $result = $this->get('/api/v1/movie', ['search' => 'Non Existing Movie']);
 
         $this->assertEquals($result->getStatusCode(), Response::HTTP_OK);
 
-        $data = json_decode($result->getBody()->getContents());
-        $this->assertEquals([], $data->data);
-        $this->assertEquals(0, $data->meta->total_count);
+        $data = json_decode($result->getBody()->getContents(), true);
+        $this->assertEquals([], $data['data']);
+        $this->assertEquals(0, $data['meta']['total_count']);
     }
 }
