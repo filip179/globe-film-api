@@ -7,6 +7,9 @@ fos_rest:
         include_format: false
     serializer:
         serialize_null: true
+    body_converter:
+        enabled: true
+        validate: true
     view:
         view_response_listener:  true
     versioning: true

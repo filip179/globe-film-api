@@ -20,6 +20,26 @@ abstract class AppTestCase extends KernelTestCase
 
     protected $response;
 
+    public function post(string $uri, array $body = [], array $additional = [])
+    {
+        $baseUrl = getenv('APP_HOST') ?? 'http://localhost';
+
+        $options = [];
+
+        if (!empty($additional)) {
+            $options['request.options'] = $additional;
+            $options += $additional;
+        }
+
+        if (!empty($body)) {
+            $options['form_params'] = $body;
+        }
+
+        $this->response = $this->http->post($baseUrl . $uri, $options);
+
+        return $this->response;
+    }
+
     public function assertJsonResponse(array $expected)
     {
         $this->assertArrayContains(
