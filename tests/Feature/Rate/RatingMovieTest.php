@@ -33,20 +33,27 @@ class RatingMovieTest extends AppTestCase
     /** @test */
     function rate_can_be_max_5()
     {
-        $result = $this->post('/api/v1/movie/' . 1 . '/rate', ['rate' => 6.0]);
+        $result = $this->post('/api/v1/movie/' . 1 . '/rate', ['rate' => 6]);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $result->getStatusCode());
     }
 
+    /** @test */
     function not_found_when_movie_not_exists()
     {
+        $result = $this->post('/api/v1/movie/' . 666 . '/rate', ['rate' => 3.0]);
 
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $result->getStatusCode());
     }
 
 
     function not_acceptable_when_already_rated()
     {
+        $result = $this->post('/api/v1/movie/' . 1 . '/rate', ['rate' => 3.0]);
+        $this->assertEquals(Response::HTTP_CREATED, $result->getStatusCode());
 
+        $result = $this->post('/api/v1/movie/' . 1 . '/rate', ['rate' => 4.0]);
+        $this->assertEquals(Response::HTTP_NOT_ACCEPTABLE, $result->getStatusCode());
     }
 
     protected function setUp(): void
