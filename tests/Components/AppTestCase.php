@@ -94,7 +94,7 @@ abstract class AppTestCase extends KernelTestCase
         $manager->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $fixture = new $fixtureName($manager);
-        $fixture->load();
+        return $fixture->load();
     }
 
     protected function get(string $uri, array $parameters = [])

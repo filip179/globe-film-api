@@ -2,7 +2,6 @@
 
 namespace App\Tests\Fixture;
 
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AppFixture
@@ -14,5 +13,5 @@ abstract class AppFixture
         $this->manager = $manager;
     }
 
-    abstract public function load(): void;
+    abstract public function load();
 }

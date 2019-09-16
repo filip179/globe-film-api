@@ -6,7 +6,7 @@ use App\Entity\Movie;
 
 class MoviesCanBeFiltered extends AppFixture
 {
-    public function load(): void
+    public function load()
     {
         $movie1 = new Movie();
         $movie1->setTitle('Title1');
