@@ -38,7 +38,7 @@ class Movie extends BaseEntity
     private $ratings;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="decimal")
      * @Assert\Range(min="1.0", max="5.0")
      * @Groups("base")
      */
