@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Movie;
 use App\Repository\MovieRepository;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,9 +36,8 @@ class MovieDataService
         return $result;
     }
 
-    public function show(int $id)
+    public function show(int $id): ?Movie
     {
         return $this->repository->find($id);
     }
-
 }

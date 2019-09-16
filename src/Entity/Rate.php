@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Entity\Component\BaseEntity;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -14,18 +15,27 @@ class Rate extends BaseEntity
 {
     /**
      * @ORM\Column
+     * @Groups("base")
      */
     private $ipAddress;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="float")
      *
-     * @Assert\Range(min="1", max="5")
+     * @Assert\Range(
+     *     min = 1,
+     *     max = 5,
+     *     minMessage="Rate must be greater or equals 1.",
+     *     maxMessage="Rate must be less or equals 5.",
+     * )
+     *
+     * @Groups("base")
      */
     private $rate;
 
     /**
      * @ORM\ManyToOne(targetEntity="Movie", inversedBy="ratings")
+     * @Groups("none")
      */
     private $movie;
 

@@ -21,7 +21,7 @@ class BadRequestHttpException extends CoreBadRequestHttpException
         ConstraintViolationListInterface $list,
         string $message = null,
         Throwable $previous = null,
-        int $code = 0,
+        int $code = 400,
         array $headers = []
     ) {
         $this->constraintViolationList = $list;
